@@ -1,10 +1,11 @@
 const CACHE_NAME = 'static-cache-v2';
-
+const DATA_CACHE_NAME = 'data-cache-v1';
 const FILES_TO_CACHE = [
   '/',
   '/index.html',
+
   '/manifest.webmanifest',
-  '/icons/style.css',
+  '/style.css',
   
 ];
 
@@ -12,7 +13,7 @@ const FILES_TO_CACHE = [
 self.addEventListener('install', function (evt) {
   // pre cache image data
   evt.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.add('/api/images'))
+    caches.open(DATA_CACHE_NAME).then((cache) => cache.add('/images'))
   );
 
   // pre cache all static assets
@@ -31,7 +32,7 @@ self.addEventListener('activate', function (evt) {
     caches.keys().then((keyList) => {
       return Promise.all(
         keyList.map((key) => {
-          if (key !== CACHE_NAME) {
+          if (key !== CACHE_NAME && key !== DATA_CACHE_NAME) {
             console.log('Removing old cache data', key);
             return caches.delete(key);
           }
@@ -48,7 +49,7 @@ self.addEventListener('fetch', function (evt) {
   if (evt.request.url.includes('/api/')) {
     evt.respondWith(
       caches
-        .open(CACHE_NAME)
+        .open(DATA_CACHE_NAME)
         .then((cache) => {
           return fetch(evt.request)
             .then((response) => {
